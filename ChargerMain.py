@@ -4,7 +4,7 @@ import psycopg2
 import db
 
 #----------------------------------Database Setup------------------------------------
-
+#test for github
 try:
     #connect to the database
     connect_str = "dbname='ChargeData' user='postgres' host='127.0.0.1' " + \
