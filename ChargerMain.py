@@ -37,7 +37,7 @@ Time = 1
 #---------------------------Initial Charging of the Battery(fsm = 1)-----------------
 def charging():
     print('in charging state')
-    if (smart.finish == 0):
+    if (smart.finishC == 0):
         starttime = time.time()                        #determine the start time to base others off of
         Current = smart.OutputCurrent(cur, Time, conn)   #Calculate output current and test for faults   
         print ('Current = ',Current)           #Send the output current value
@@ -52,7 +52,7 @@ def charging():
 def dischargewait():
     print('in discharge state')
     time.sleep(20)
-    if (getVolt(cur, Time) < 2.8):
+    if (smart.getVolt(cur, Time) < 2.8):
         db.updatedbfsm(cur, 1)
         conn.commit()
     else:
@@ -63,11 +63,11 @@ def dischargewait():
 def topoff():
     print('in topoff state')
     Current = smart.TopCurrent(cur, Time, conn)      #Calculate output current and test for faults
-    print('Current = ' + Current)
+    print('Current = ' + str(Current))
     db.updatedbval(cur, 'realtimedata', 'current', Current, 'time', 1)
     conn.commit()
     #send current signal from db to pin
-    if (smart.finish == 2):
+    if (smart.finishT == 2):
         db.updatedbfsm(cur, 5)
         conn.commit()
 
@@ -126,10 +126,15 @@ while True:
         print("Faults are tripped! ", smart.Readfaults(cur))
         db.updatedbfsm(cur, 4)
         conn.commit()
+    elif (smart.finishT == 2):
+        db.updatedbfsm(cur, 5)
+        conn.commit()
     fsmvalue = db.getcolval(cur, 'fsm', 'fsmvalue', 1)
+    print(smart.finishT)
+    if (fsmvalue == 5):
+        break
     fsm[fsmvalue]()
     time.sleep(5)
-    if fsmvalue == 5:
-        break
+
 
 print ('Finished!')

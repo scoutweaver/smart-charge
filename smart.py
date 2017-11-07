@@ -1,7 +1,8 @@
 import db
 #This contains all the functions used in the Smart Charge system
 Fault = 0
-finish = 0
+finishC = 0
+finishT = 0
 #Retreiveing the temperature
 def getTemp(cur, Time):
     Temp = db.getcolval(cur, 'realtimedata', 'temp', Time)
@@ -45,8 +46,8 @@ def VoltageDiff(Voltage, cur, conn):
         conn.commit()
     elif (3<=Voltage):                   #no current until top off
         VD = 0
-        global finish
-        finish = 1
+        global finishC
+        finishC = 1
     return VD
         
 #Computing the output current from voltage and temperature  
@@ -63,11 +64,11 @@ def CheckFault(cur):
         Faults = 1
     return Faults                   #Gets the fault indicator from the DB
 
-def ToppffCurrent(cur, Time, conn): 
+def TopCurrent(cur, Time, conn): 
     Current = 1.1*TempDiff(getTemp(cur, Time),cur, conn)*VoltageDiff(getVolt(cur, Time), cur, conn)
     if (getVolt(cur, Time)>3.2):
-        global finish
-        finish = 2
+        global finishT
+        finishT = 2
     return Current
 
 def Readfaults(cur):
